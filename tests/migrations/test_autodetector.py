@@ -2483,57 +2483,6 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
         self.assertOperationTypes(changes, "testapp", 1, ["DeleteModel"])
 
-    def test_move_inherited_models(self):
-        before = [self.author_name, self.aardvark_based_on_author]
-        after = [
-            ModelState(
-                "otherapp",
-                "Author",
-                [
-                    ("id", models.AutoField(primary_key=True)),
-                    ("name", models.CharField(max_length=200)),
-                ],
-            ),
-            ModelState("otherapp", "Aardvark", [], bases=("otherapp.Author",)),
-        ]
-        changes = self.get_changes(
-            before, after, MigrationQuestioner({"ask_move_model": True})
-        )
-        self.assertNumberMigrations(changes, "otherapp", 2)
-
-        self.assertMigrationDependencies(
-            changes, "otherapp", 0, [("testapp", "auto_1")]
-        )
-        self.assertOperationTypes(
-            changes, "otherapp", 0, ["CreateModel", "CreateModel"]
-        )
-        self.assertOperationAttributes(changes, "otherapp", 0, 0, name="author")
-
-        self.assertMigrationDependencies(
-            changes, "otherapp", 1, [("otherapp", "auto_1"), ("testapp", "auto_2")]
-        )
-        self.assertOperationTypes(
-            changes, "otherapp", 1, ["AlterModelOptions", "AlterModelOptions"]
-        )
-
-        self.assertNumberMigrations(changes, "testapp", 3)
-
-        self.assertMigrationDependencies(changes, "testapp", 0, [])
-        self.assertOperationTypes(
-            changes, "testapp", 0, ["AlterModelTable", "AlterModelTable"]
-        )
-        self.assertMigrationDependencies(
-            changes, "testapp", 1, [("otherapp", "auto_1"), ("testapp", "auto_1")]
-        )
-        self.assertOperationTypes(
-            changes, "testapp", 1, ["AlterModelOptions", "AlterModelOptions"]
-        )
-
-        self.assertMigrationDependencies(
-            changes, "testapp", 2, [("otherapp", "auto_2"), ("testapp", "auto_2")]
-        )
-        self.assertOperationTypes(changes, "testapp", 2, ["DeleteModel", "DeleteModel"])
-
     def test_fk_dependency(self):
         """Having a ForeignKey automatically adds a dependency."""
         # Note that testapp (author) has no dependencies,

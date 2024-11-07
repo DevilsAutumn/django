@@ -2494,7 +2494,7 @@ class AutodetectorTests(BaseAutodetectorTests):
                     ("name", models.CharField(max_length=200)),
                 ],
             ),
-            ModelState("otherapp", "Aardvark", [], bases=("otherapp.author",)),
+            ModelState("otherapp", "Aardvark", [], bases=("otherapp.Author",)),
         ]
         changes = self.get_changes(
             before, after, MigrationQuestioner({"ask_move_model": True})

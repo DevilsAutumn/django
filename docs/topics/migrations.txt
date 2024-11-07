@@ -540,7 +540,10 @@ removing the old ones, you should be able to remove the field completely.
 Moving a model between apps
 ===========================
 
-  .. versionadded:: 5.1
+  .. versionadded:: 5.2
+
+.. note::
+    moving inherited models is not yet supported.
 
 Django seamlessly handles the process of transferring models from one app
 to another. This involves recognizing the moved model and automatically

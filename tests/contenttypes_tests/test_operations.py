@@ -289,3 +289,62 @@ class MoveContentTypeOperationsTests(TransactionTestCase):
         )
         self.assertTrue(other_content_types.filter(app_label="bar").exists())
         self.assertFalse(other_content_types.filter(app_label="foo").exists())
+
+    def test_missing_content_type_move_ignore(self):
+        ContentType.objects.create(app_label="foo", model="simplebar")
+        call_command(
+            "migrate",
+            database="default",
+            interactive=False,
+            verbosity=0,
+        )
+        self.assertFalse(
+            ContentType.objects.filter(app_label="bar", model="simplebar").exists()
+        )
+        self.assertTrue(
+            ContentType.objects.filter(app_label="foo", model="simplebar").exists()
+        )
+        call_command(
+            "migrate",
+            "bar",
+            "zero",
+            database="default",
+            interactive=False,
+            verbosity=0,
+        )
+        self.assertTrue(
+            ContentType.objects.filter(app_label="bar", model="simplebar").exists()
+        )
+        self.assertFalse(
+            ContentType.objects.filter(app_label="foo", model="simplebar").exists()
+        )
+
+    def test_content_type_move_conflict(self):
+        ContentType.objects.create(app_label="bar", model="simplebar")
+        ContentType.objects.create(app_label="foo", model="simplebar")
+        call_command(
+            "migrate",
+            database="default",
+            interactive=False,
+            verbosity=0,
+        )
+        self.assertTrue(
+            ContentType.objects.filter(app_label="bar", model="simplebar").exists()
+        )
+        self.assertTrue(
+            ContentType.objects.filter(app_label="foo", model="simplebar").exists()
+        )
+        call_command(
+            "migrate",
+            "bar",
+            "zero",
+            database="default",
+            interactive=False,
+            verbosity=0,
+        )
+        self.assertTrue(
+            ContentType.objects.filter(app_label="bar", model="simplebar").exists()
+        )
+        self.assertTrue(
+            ContentType.objects.filter(app_label="foo", model="simplebar").exists()
+        )
